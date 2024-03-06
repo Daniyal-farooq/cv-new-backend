@@ -1,10 +1,11 @@
 const { response } = require('express');
 const express = require('express');
 const cors = require('cors');
-const puppeteer = require('puppeteer');
 const handlebars = require('handlebars');
 const fs = require('fs');
+const puppeteer = require('puppeteer-core');
 
+const pdf = require('html-pdf');
 
 const app = express();
 
@@ -33,37 +34,36 @@ app.post('/', (req, res, next) => {
 });
 
 
-app.post('/generate-pdf', async (req, res) => {
-    try {
-      const { jsonData } = req.body;
-  
-      // Inject data into the Handlebars template
-      const html = template(jsonData);
-  
-      const browser = await puppeteer.launch();
-      const page = await browser.newPage();
-  
-      // Set the HTML content of the page
-      await page.setContent(html);
-  
-      // Generate PDF
-      const pdfBuffer = await page.pdf({ format: 'A4' });
-  
-      // Close browser
-      await browser.close();
-  
-      // Set response headers
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename=generated-pdf.pdf');
-  
-      // Send PDF as response
-      res.send(pdfBuffer);
-    } catch (error) {
-      console.error(error);
-      res.status(500).send('Internal Server Error');
-    }
-  });
+// Your HBS template handling code here...
+// const templateContent = '<html><body>{{jsonData}}</body></html>';
+// const template = handlebars.compile(templateContent);
 
+app.post('/generate-pdf', async (req, res) => {
+  try {
+    const { jsonData } = req.body;
+
+    // Your HBS template rendering code here...
+    const html = template({ jsonData });
+
+    // Use html-pdf to generate PDF
+    pdf.create(html).toBuffer((err, buffer) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send('Error generating PDF');
+      } else {
+        // Set response headers
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename=generated-pdf.pdf');
+
+        // Send PDF as response
+        res.send(buffer);
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 app.get('/resume-maker/:theme', (req, res, next) => {
     console.log("theme: ", req.params.theme);
