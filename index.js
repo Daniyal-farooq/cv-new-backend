@@ -9,7 +9,8 @@ const fs = require('fs');
 const app = express();
 
 // Read the Handlebars template from a separate file
-const templateContent = fs.readFileSync('template.hbs', 'utf8');
+const templatePath = `${__dirname}/template.hbs`;
+const templateContent = fs.readFileSync(templatePath, 'utf8');
 const template = handlebars.compile(templateContent);
 
 // SET UP MIDDLEWARE
