@@ -46,10 +46,12 @@ const templateContent = fs.readFileSync(templatePath, 'utf8');
 const template = handlebars.compile(templateContent);
 
 app.post('/generate-pdf', async (req, res) => {
-  const browser = await puppeteer.launch({
-    executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', // Replace with the correct path
-  });
+ 
   try {
+    // const browser = await puppeteer.launch({
+    //   executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', // Replace with the correct path
+    // });
+
     const { jsonData } = req.body;
 
     // Assuming jsonData is an object, convert it to a string
@@ -59,7 +61,10 @@ app.post('/generate-pdf', async (req, res) => {
     const html = template({ jsonData: jsonString });
 
     // Use puppeteer to generate PDF
-    const browser = await puppeteer.launch();
+    // const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', // Replace with the correct path
+    });
     const page = await browser.newPage();
     await page.setContent(html);
     
