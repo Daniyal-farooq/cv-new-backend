@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const handlebars = require('handlebars');
 const fs = require('fs');
-const puppeteer = require('puppeteer-core');
+const puppeteer = require('puppeteer');
 
 const pdf = require('html-pdf');
 
@@ -49,23 +49,29 @@ app.post('/generate-pdf', async (req, res) => {
   try {
     const { jsonData } = req.body;
 
+    // Assuming jsonData is an object, convert it to a string
+    const jsonString = JSON.stringify(jsonData, null, 2);
+
     // Your HBS template rendering code here...
-    const html = template({ name : "dani" , age : "21"});
+    const html = template({ jsonData: jsonString });
 
-    // Use html-pdf to generate PDF
-    pdf.create(html).toBuffer((err, buffer) => {
-      if (err) {
-        console.error(err);
-        res.status(500).send('Error generating PDF');
-      } else {
-        // Set response headers
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'attachment; filename=generated-pdf.pdf');
+    // Use puppeteer to generate PDF
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.setContent(html);
+    
+    // Generate PDF
+    const pdfBuffer = await page.pdf({ format: 'A4' });
 
-        // Send PDF as response
-        res.send(buffer);
-      }
-    });
+    // Close browser
+    await browser.close();
+
+    // Set response headers
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=generated-pdf.pdf');
+
+    // Send PDF as response
+    res.send(pdfBuffer);
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
