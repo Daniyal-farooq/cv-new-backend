@@ -46,6 +46,9 @@ const templateContent = fs.readFileSync(templatePath, 'utf8');
 const template = handlebars.compile(templateContent);
 
 app.post('/generate-pdf', async (req, res) => {
+  const browser = await puppeteer.launch({
+    executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', // Replace with the correct path
+  });
   try {
     const { jsonData } = req.body;
 
