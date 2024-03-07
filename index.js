@@ -10,9 +10,9 @@ const pdf = require('html-pdf');
 const app = express();
 
 // Read the Handlebars template from a separate file
-const templatePath = `${__dirname}/template.hbs`;
-const templateContent = fs.readFileSync(templatePath, 'utf8');
-const template = handlebars.compile(templateContent);
+// const templatePath = `${__dirname}/template.hbs`;
+// const templateContent = fs.readFileSync(templatePath, 'utf8');
+// const template = handlebars.compile(templateContent);
 
 // SET UP MIDDLEWARE
 app.use(express.json());
@@ -38,12 +38,19 @@ app.post('/', (req, res, next) => {
 // const templateContent = '<html><body>{{jsonData}}</body></html>';
 // const template = handlebars.compile(templateContent);
 
+
+// Your HBS template handling code here...
+
+const templatePath = `${__dirname}/template.hbs`;
+const templateContent = fs.readFileSync(templatePath, 'utf8');
+const template = handlebars.compile(templateContent);
+
 app.post('/generate-pdf', async (req, res) => {
   try {
     const { jsonData } = req.body;
 
     // Your HBS template rendering code here...
-    const html = template({ jsonData });
+    const html = template({ name : "dani" , age : "21"});
 
     // Use html-pdf to generate PDF
     pdf.create(html).toBuffer((err, buffer) => {
